@@ -24,3 +24,39 @@ exports.register = async (req, res) => {
 };
 
 // ユーザログイン用API
+exports.login = async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    // DBからユーザが存在するか探してくる
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(401).json({
+        param: "username",
+        message: "ユーザ名が無効です",
+      });
+    }
+
+    // パスワードが正しいか照合する
+    const decryptedPassword = CryptoJS.AES.decrypt(
+      user.password,
+      process.env.SECRET_KEY
+    ).toString(CryptoJS.enc.Utf8);
+
+    if (decryptedPassword !== password) {
+      return res.status(401).json({
+        param: "password",
+        message: "パスワードが無効です",
+      });
+    }
+
+    // JWTの発行
+    const token = JWT.sign({ id: user._id }, process.env.TOKEN_SECRET_KEY, {
+      expiresIn: "24h",
+    });
+
+    return res.status(201).json({ user, token });
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+};
