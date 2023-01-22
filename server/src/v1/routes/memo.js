@@ -6,5 +6,7 @@ const tokenHandler = require("../handlers/tokenHandler");
 router.post("/", tokenHandler.verifyToken, memoController.create);
 // ログインしているユーザが投稿したメモを全て取得
 router.get("/", tokenHandler.verifyToken, memoController.getAll);
+// ログインしているユーザが投稿したメモを1つ取得
+router.get("/:memoId", tokenHandler.verifyToken, memoController.getOne);
 
 module.exports = router;
