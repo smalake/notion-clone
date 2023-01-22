@@ -6,18 +6,31 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import assets from "../../assets/index";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import memoApi from "../../api/memoApi";
 
 const Sidebar = () => {
   // ページ遷移用
   const navigate = useNavigate();
   // reduxでユーザ情報を取得
   const user = useSelector((state) => state.user.value);
+
+  useEffect(() => {
+    const getMemos = async () => {
+      try {
+        const res = await memoApi.getAll();
+        console.log(res);
+      } catch (err) {
+        alert(err);
+      }
+    };
+    getMemos();
+  }, []);
 
   // ログアウトボタンをクリックしたら、JWTを削除してログインページへリダイレクト
   const logout = () => {
