@@ -6,37 +6,49 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import assets from "../../assets/index";
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import memoApi from "../../api/memoApi";
+import { setMemo } from "../../redux/features/memoSlice";
 
 const Sidebar = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const dispatch = useDispatch();
   // ページ遷移用
   const navigate = useNavigate();
+  // URLのパラメータ（メモID）を取り出す
+  const { memoId } = useParams();
   // reduxでユーザ情報を取得
   const user = useSelector((state) => state.user.value);
-
-  useEffect(() => {
-    const getMemos = async () => {
-      try {
-        const res = await memoApi.getAll();
-        console.log(res);
-      } catch (err) {
-        alert(err);
-      }
-    };
-    getMemos();
-  }, []);
+  // reduxでメモ一覧を取得
+  const memos = useSelector((state) => state.memo.value);
 
   // ログアウトボタンをクリックしたら、JWTを削除してログインページへリダイレクト
   const logout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
+
+  useEffect(() => {
+    const getMemos = async () => {
+      try {
+        const res = await memoApi.getAll();
+        dispatch(setMemo(res));
+      } catch (err) {
+        alert(err);
+      }
+    };
+    getMemos();
+  }, [dispatch]);
+
+  useEffect(() => {
+    const activeIndex = memos.findIndex((e) => e._id === memoId);
+    setActiveIndex(activeIndex);
+  }, [navigate]);
 
   return (
     <Drawer
@@ -103,9 +115,19 @@ const Sidebar = () => {
             </IconButton>
           </Box>
         </ListItemButton>
-        <ListItemButton sx={{ pl: "20px" }} component={Link} to="/memo/1234">
-          <Typography>📝 仮置のメモ</Typography>
-        </ListItemButton>
+        {memos.map((item, index) => (
+          <ListItemButton
+            sx={{ pl: "20px" }}
+            component={Link}
+            to={`/memo/${item._id}`}
+            key={item._id}
+            selected={index === activeIndex}
+          >
+            <Typography>
+              {item.icon} {item.title}
+            </Typography>
+          </ListItemButton>
+        ))}
       </List>
     </Drawer>
   );
