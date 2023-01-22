@@ -8,5 +8,7 @@ router.post("/", tokenHandler.verifyToken, memoController.create);
 router.get("/", tokenHandler.verifyToken, memoController.getAll);
 // ログインしているユーザが投稿したメモを1つ取得
 router.get("/:memoId", tokenHandler.verifyToken, memoController.getOne);
+// ログインしているユーザが投稿したメモを1つ更新
+router.put("/:memoId", tokenHandler.verifyToken, memoController.update);
 
 module.exports = router;

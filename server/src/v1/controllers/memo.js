@@ -14,6 +14,7 @@ exports.create = async (req, res) => {
   }
 };
 
+// ログインしているユーザのメモ一覧を取得
 exports.getAll = async (req, res) => {
   try {
     const memos = await Memo.find({ user: req.user._id }).sort("-position");
@@ -23,12 +24,33 @@ exports.getAll = async (req, res) => {
   }
 };
 
+// 指定したメモ1つを取得
 exports.getOne = async (req, res) => {
   const { memoId } = req.params;
   try {
     const memo = await Memo.findOne({ user: req.user._id, _id: memoId });
     if (!memo) return res.status(404).json("メモが存在しません");
     res.status(200).json(memo);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+// 指定したメモの内容を更新
+exports.update = async (req, res) => {
+  const { memoId } = req.params;
+  const { title, description } = req.body;
+  try {
+    if (title === "") req.body.title = "無題";
+    if (description === "") req.body.description = "自由に入力してください";
+
+    const memo = await Memo.findOne({ user: req.user._id, _id: memoId });
+    if (!memo) return res.status(404).json("メモが存在しません");
+
+    const updatedMemo = await Memo.finedByIdAndUpdate(memoId, {
+      $set: req.body,
+    });
+    res.status(200).json(updatedMemo);
   } catch (err) {
     res.status(500).json(err);
   }
