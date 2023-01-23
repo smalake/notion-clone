@@ -2,13 +2,18 @@ import { Box, IconButton, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
 import DeleteBorderOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import memoApi from "../api/memoApi";
+import { useDispatch, useSelector } from "react-redux";
+import { setMemo } from "../redux/features/memoSlice";
 
 const Memo = () => {
   const { memoId } = useParams();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const memos = useSelector((state) => state.memo.value);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getMemo = async () => {
@@ -44,6 +49,7 @@ const Memo = () => {
     const newDescription = e.target.value;
     setDescription(newDescription);
 
+    // 設定した時間毎に実行される
     timer = setTimeout(async () => {
       try {
         await memoApi.update(memoId, { description: newDescription });
@@ -51,6 +57,23 @@ const Memo = () => {
         alert(err);
       }
     }, timeout);
+  };
+
+  const deleteMemo = async () => {
+    try {
+      const deletedMemo = await memoApi.delete(memoId);
+      console.log(deleteMemo);
+
+      const newMemos = memos.filter((e) => e._id !== memoId);
+      if (newMemos.length === 0) {
+        navigate("/memo");
+      } else {
+        navigate(`/memo/${newMemos[0]._id}`);
+      }
+      dispatch(setMemo(newMemos));
+    } catch (err) {
+      alert(err);
+    }
   };
 
   return (
@@ -65,7 +88,7 @@ const Memo = () => {
         <IconButton>
           <StarBorderOutlinedIcon />
         </IconButton>
-        <IconButton variant="outlined" color="error">
+        <IconButton variant="outlined" color="error" onClick={deleteMemo}>
           <DeleteBorderOutlinedIcon />
         </IconButton>
       </Box>

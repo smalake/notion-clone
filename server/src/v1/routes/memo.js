@@ -10,5 +10,7 @@ router.get("/", tokenHandler.verifyToken, memoController.getAll);
 router.get("/:memoId", tokenHandler.verifyToken, memoController.getOne);
 // ログインしているユーザが投稿したメモを1つ更新
 router.put("/:memoId", tokenHandler.verifyToken, memoController.update);
+// ログインしているユーザが投稿したメモを1つ削除
+router.delete("/:memoId", tokenHandler.verifyToken, memoController.delete);
 
 module.exports = router;
