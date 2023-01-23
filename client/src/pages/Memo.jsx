@@ -22,6 +22,18 @@ const Memo = () => {
     };
     getMemo();
   }, [memoId]);
+
+  const updateTitle = async (e) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+
+    try {
+      await memoApi.update(memoId, { title: newTitle });
+    } catch (err) {
+      alert(err);
+    }
+  };
+
   return (
     <>
       <Box
@@ -40,6 +52,7 @@ const Memo = () => {
       </Box>
       <Box sx={{ padding: "10px 50px" }}>
         <TextField
+          onChange={updateTitle}
           value={title}
           placeholder="無題"
           variant="outlined"
