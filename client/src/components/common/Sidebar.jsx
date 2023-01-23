@@ -50,6 +50,17 @@ const Sidebar = () => {
     setActiveIndex(activeIndex);
   }, [navigate]);
 
+  const addMemo = async () => {
+    try {
+      const res = await memoApi.create();
+      const newMemos = [res, ...memos];
+      dispatch(setMemo(newMemos));
+      navigate(`memo/${res._id}`);
+    } catch (err) {
+      alert(err);
+    }
+  };
+
   return (
     <Drawer
       container={window.document.body}
@@ -110,7 +121,7 @@ const Sidebar = () => {
             <Typography variant="body2" fontWeight="700">
               プライベート
             </Typography>
-            <IconButton>
+            <IconButton onClick={() => addMemo()}>
               <AddCircleOutlineIcon fontSize="small" />
             </IconButton>
           </Box>
